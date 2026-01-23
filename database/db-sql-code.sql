@@ -242,3 +242,23 @@ VALUES   (
     'White',
     5
   );
+
+  -- UPDATE INFO
+
+UPDATE public.inventory
+SET inv_description = REPLACE (inv_description,'small interiors','huge interior');
+
+--UPDATE QUERIES
+
+UPDATE inventory
+SET 
+    inv_image = CONCAT(
+        SUBSTRING(inv_image FROM 1 FOR POSITION('images' IN inv_image) + 5), 
+        '/vehicles', 
+        SUBSTRING(inv_image FROM POSITION('images' IN inv_image) + 6 FOR LENGTH(inv_image))
+    ),
+    inv_thumbnail = CONCAT(
+        SUBSTRING(inv_thumbnail FROM 1 FOR POSITION('images' IN inv_thumbnail) + 5), 
+        '/vehicles', 
+        SUBSTRING(inv_thumbnail FROM POSITION('images' IN inv_thumbnail) + 6 FOR LENGTH(inv_thumbnail))
+    );
