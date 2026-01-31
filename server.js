@@ -5,9 +5,10 @@
 /******************************************
  * Require Statements
  ******************************************/
-const session = require("express-session")
+const express = require("express");
+const session = require("express-session");
+const pgSession = require("connect-pg-simple")(session);
 const pool = require('./database/')
-const express = require("express")
 const expressLayouts = require("express-ejs-layouts")
 require("dotenv").config() 
 const app = express()  
@@ -29,15 +30,15 @@ app.set("layout", "./layouts/layout")
  * Middleware
  * ************************/
 app.use(session({
-  store: new (require('connect-pg-simple')(session))({
-    createTableIfMissing: true,
+  store: new pgSession({
     pool,
+    createTableIfMissing: true
   }),
   secret: process.env.SESSION_SECRET,
-  resave: true,
-  saveUninitialized: true,
-  name: 'sessionId',
-}))
+  resave: false,
+  saveUninitialized: false,
+  name: "sessionId",
+}));
 
 // Express Messages Middleware
 app.use(require('connect-flash')())
