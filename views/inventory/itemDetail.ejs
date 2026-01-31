@@ -1,6 +1,11 @@
 <main>
-  <%- itemHTML %>
+  <section class="inventory-detail">
+    <%- itemHTML %>
+  </section>
 
-  <!-- Enlace para regresar al inventario -->
-  <a href="/inv/type/<%= item.classification_id %>" class="btn">Return to Inventory</a>
+  <p>
+    <a href="/inv/type/<%= item.classification_id %>" class="btn">
+      Return to Inventory
+    </a>
+  </p>
 </main>
