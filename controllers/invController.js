@@ -1,61 +1,97 @@
 const invModel = require("../models/inventory-model")
-const utilities = require("../utilities/")
+const utilities = require("../utilities")
 
 const invCont = {}
 
 /* ***************************
- *  Build inventory by classification view
+ * Inventory by Classification
  * ************************** */
-invCont.buildByClassificationId = async function (req, res, next) {
+invCont.buildByClassificationId = async function (req, res) {
   const classification_id = req.params.classificationId
-  try {
-    const data = await invModel.getInventoryByClassificationId(classification_id)
-    
-    // If we dont have data , we sent a 404 error
-    if (!data || data.length === 0) {
-      return next({ status: 404, message: "No vehicles found for this classification" })
-    }
+  const data = await invModel.getInventoryByClassificationId(classification_id)
+  const nav = await utilities.getNav()
 
-    const grid = await utilities.buildClassificationGrid(data)
-    const nav = await utilities.getNav()
-    const className = data[0].classification_name  
-    res.render("./inventory/classification", {
-      title: className + " vehicles",
-      nav,
-      grid,
-    })
-  } catch (error) {
-    next(error)  
+  res.render("inventory/classification", {
+    title: "Inventory",
+    nav,
+    grid: await utilities.buildClassificationGrid(data.rows),
+  })
+}
+
+/* ***************************
+ * Inventory Detail
+ * ************************** */
+invCont.buildByInventoryId = async function (req, res) {
+  const inv_id = req.params.invId
+  const data = await invModel.getInventoryByInventoryId(inv_id)
+  const nav = await utilities.getNav()
+
+  res.render("inventory/detail", {
+    title: `${data.rows[0].inv_make} ${data.rows[0].inv_model}`,
+    nav,
+    item: utilities.formatItemDetails(data.rows[0]),
+  })
+}
+
+/* ***************************
+ * Management View
+ * ************************** */
+invCont.buildManagement = async function (req, res) {
+  const nav = await utilities.getNav()
+  res.render("inventory/management", {
+    title: "Inventory Management",
+    nav,
+  })
+}
+
+/* ***************************
+ * Add Classification
+ * ************************** */
+invCont.buildAddClassification = async function (req, res) {
+  const nav = await utilities.getNav()
+  res.render("inventory/add-classification", {
+    title: "Add Classification",
+    nav,
+  })
+}
+
+invCont.addClassification = async function (req, res) {
+  const { classification_name } = req.body
+  const result = await invModel.addClassification(classification_name)
+
+  if (result) {
+    req.flash("success", "Classification added.")
+    res.redirect("/inv/")
+  } else {
+    req.flash("error", "Failed to add classification.")
+    res.redirect("/inv/add-classification")
   }
 }
 
 /* ***************************
- *  Function to build the dynamic item detail view
+ * Add Inventory
  * ************************** */
-invCont.buildItemDetail = async function (req, res, next) {
-  const itemId = req.params.itemId;  // Getting the Id of the item since the url
-  try {
-    const item = await invModel.getItemById(itemId);  // calling the funtion getItemById of invModel
+invCont.buildAddInventory = async function (req, res) {
+  const nav = await utilities.getNav()
+  const classificationList = await utilities.buildClassificationList()
 
-    if (!item) {
-      return next({ status: 404, message: "Item not found" });  // If the article is not find error 404 will be return
-    }
+  res.render("inventory/add-inventory", {
+    title: "Add Inventory",
+    nav,
+    classificationList,
+  })
+}
 
-    
-    // Call the personalize funtion to format the details of the article.
-    const itemHTML = await utilities.formatItemDetails(item);
+invCont.addInventory = async function (req, res) {
+  const result = await invModel.addInventory(req.body)
 
-    const nav = await utilities.getNav();
-    // Rendarize the view itemDetail passing 'item' complete with itemHTML
-    res.render("inventory/itemDetail", {
-      title: `${item.inv_make} ${item.inv_model}`,  // Dinamic Title
-      nav,
-      itemHTML,  // The details or the articles
-      item  //  Pass the 'item' object to the view
-    });
-  } catch (error) {
-    next(error);  // In case of an error , we use el middleware of manage of errors
+  if (result) {
+    req.flash("success", "Vehicle added.")
+    res.redirect("/inv/")
+  } else {
+    req.flash("error", "Failed to add vehicle.")
+    res.redirect("/inv/add-inventory")
   }
-};
+}
 
 module.exports = invCont
