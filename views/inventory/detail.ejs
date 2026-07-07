@@ -1,0 +1,14 @@
+<%# Detail view - one vehicle, data from controller %>
+
+<% if (title) { %>
+<h1><%= title %></h1>
+<% } else { %>
+<h1>Vehicle Details</h1>
+<% } %>
+
+<%# message %>
+
+<%# inventory detail %>
+<section class="vehicle-detail-section" aria-label="Vehicle details">
+  <%- detailHTML %>
+</section>

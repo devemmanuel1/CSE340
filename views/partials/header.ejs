@@ -1,13 +1,7 @@
-<header id="top-header">
-  <span class="siteName">
-    <a href="/" title="Return to home page">CSE Motors</a>
-  </span>
-  <div id="tools">
-    <% if (locals.loggedin) { %>
-            <a href="/account/" title="Account Management">Welcome <%= locals.accountData.account_firstname %></a>
-            <a href="/account/logout" title="Logout">Logout</a>
-        <% } else { %>
-            <a href="/account/login" title="Click to log in">My Account</a>
-        <% } %>
-  </div>
-</header>
+      <header class="header">
+        <!-- Top row: Title left / Label right -->
+        <div class="header__top">
+          <h1 class="header__title">CSE Motors</h1>
+          <span class="header__label">My account</span>
+        </div>
+      </header>

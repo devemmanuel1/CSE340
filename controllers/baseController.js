@@ -2,9 +2,18 @@ const utilities = require("../utilities/")
 const baseController = {}
 
 baseController.buildHome = async function(req, res){
-  let nav = await utilities.getNav()
+  const nav = await utilities.getNav()
   res.render("index", {title: "Home", nav})
-  
+
+}
+
+/* ***************************
+ * Trigger intentional 500 error for testing
+ * ************************** */
+baseController.triggerError = async function(req, res, next) {
+  const err = new Error('Intentional 500 error for testing.')
+  err.status = 500
+  throw err
 }
 
 module.exports = baseController

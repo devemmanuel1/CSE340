@@ -1,20 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/public/css/styles.css" />
-  </head>
-  <body>
-    <div class="error-container">
-      <h1><%= title %></h1>
-      <p><%= message %></p>
+<%# Error view - title and message passed from render. Meets frontend checklist: semantic HTML, ARIA, accessible links. %>
 
-      <div class="fun-message">
-        <p>Oops! Something went wrong. Maybe it's hiding under the couch? 🛋️</p>
-        <p><a href="/">Go back home</a></p>
-      </div>
-    </div>
-  </body>
-</html>
+<% if (title) { %>
+<h1><%= title %></h1>
+<% } else { %>
+<h1>Oops!</h1>
+<% } %>
+
+<section class="error-message" aria-label="Error details" role="alert">
+  <p class="error-message__intro">Our hamsters are confused. Here's what they said:</p>
+  <p class="error-message__text"><%- message %></p>
+  <p class="error-message__outro">Don't worry &mdash; even our DeLorean has bad days. <a href="/" title="Return to home">Take me home</a>.</p>
+</section>

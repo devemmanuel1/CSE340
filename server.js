@@ -5,27 +5,22 @@
 /* ***********************
  * Require Statements
  *************************/
+const session = require("express-session")
+const pool = require('./database/')
+const baseController = require("./controllers/baseController")
+const inventoryRoute = require("./routes/inventoryRoute")
+const utilities = require("./utilities/")
 const express = require("express")
 const expressLayouts = require("express-ejs-layouts")
 const env = require("dotenv").config()
 const app = express()
 const static = require("./routes/static")
-const baseController = require("./controllers/baseController")
-const inventoryRoute = require("./routes/inventoryRoute")
-const utilities = require("./utilities/index")
-const intentionalErrorRoute = require("./routes/intentionalErrorRoute");
-const catchIntentionalError = require("./middleware/catchIntentionalError");
-const session = require("express-session")
-const pool = require("./database/")
-const accountRoute = require("./routes/accountRoute")
-const bodyParser = require("body-parser")
-const cookieParser = require("cookie-parser")
-const reviewRoute = require("./routes/reviewRoute")
+const { title } = require("process")
 
 /* ***********************
  * Middleware
  * ************************/
-app.use(session({
+ app.use(session({
   store: new (require('connect-pg-simple')(session))({
     createTableIfMissing: true,
     pool,
@@ -38,23 +33,21 @@ app.use(session({
 
 // Express Messages Middleware
 app.use(require('connect-flash')())
-app.use(function (req, res, next) {
+app.use(function(req, res, next){
   res.locals.messages = require('express-messages')(req, res)
   next()
 })
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-app.use(cookieParser())
-app.use(utilities.checkJWTToken)
 
 /* ***********************
  * View Engine and Templates
  *************************/
-app.set("view engine", "ejs")
+
+app.set("view engine","ejs")
 app.use(expressLayouts)
-app.set("layout", "./layouts/layout") // not at views root
+app.set("layout", "./layouts/layout")// not at views root
+
 
 /* ***********************
  * Routes
@@ -67,17 +60,8 @@ app.get("/", utilities.handleErrors(baseController.buildHome))
 // Inventory routes
 app.use("/inv", inventoryRoute)
 
-// Account routes
-app.use("/account", accountRoute);
-
-// Review routes
-app.use("/review", reviewRoute)
-
-// Intentional error route (for testing 500 handling)
-app.use("/error", intentionalErrorRoute);
-
-// Middleware to catch intentional errors from /error routes and render the error view
-app.use(catchIntentionalError);
+// Intentional 500 error route (for testing error handling)
+app.get("/trigger-error", utilities.handleErrors(baseController.triggerError))
 
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {
@@ -91,18 +75,15 @@ app.use(async (req, res, next) => {
 app.use(async (err, req, res, next) => {
   let nav = await utilities.getNav()
   console.error(`Error at: "${req.originalUrl}": ${err.message}`)
-  if (err.status == 404) {
-    message = err.message
-  } else {
-    message = 'Oh no! There was a crash. Maybe try a different route?'
-  }
+  let message = err.status == 404 ? err.message : 'Oh no! There was a crash. Maybe try a different route?'
   res.render("errors/error", {
     title: err.status || 'Server Error',
-    message: err.message,
-    description: "Server Error Page.",
+    message,
     nav
   })
 })
+
+
 
 /* ***********************
  * Local Server Information
