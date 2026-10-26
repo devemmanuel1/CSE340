@@ -1,30 +1,215 @@
-html, body {
-    background-color: lightblue;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
+/* CSE 340 Service Network
+   1. Design tokens: change these values to retheme every page. */
+:root {
+    color-scheme: light;
+    --navy: #142e40;
+    --teal: #12675e;
+    --teal-soft: #e6f2ed;
+    --gold: #c49a53;
+    --ink: #203b4a;
+    --muted: #526773;
+    --paper: #f5f7f5;
+    --white: #ffffff;
+    --line: #d6e1dd;
+    --radius: 1rem;
+    --content: 72rem;
 }
 
+/* 2. Foundation: predictable sizing and a footer that stays below content. */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 100%; background: var(--paper); }
 body {
-    nav {
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    color: var(--ink);
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: var(--teal); text-underline-offset: .25em; }
+a:focus-visible {
+    outline: 3px solid var(--teal);
+    outline-offset: 4px;
+}
+::selection { background: var(--teal); color: var(--white); }
 
-        li {
-            display: inline;
-            margin-right: 15px;
-        }
+/* 3. Shared navigation: a wrapping flex row, with a non-color current marker. */
+body > nav {
+    background: var(--navy);
+    border-top: 4px solid var(--gold);
+    padding: .85rem 1rem;
+}
+nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    max-width: var(--content);
+    padding: 0;
+    margin: 0 auto;
+    list-style: none;
+}
+nav li { flex: 1 1 calc(50% - .35rem); }
+nav a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 48px;
+    padding: .55rem .8rem;
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    color: #edf5f3;
+    font-size: .95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+nav a:hover { background: #294658; border-color: #6b8895; }
+nav a[aria-current="page"] {
+    background: var(--teal-soft);
+    color: var(--navy);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: .4em;
+}
+nav a:focus-visible { outline-color: #f1ca83; }
+nav a:active { background: #bcdacf; color: var(--navy); }
 
-        a {
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
+/* 4. Content rhythm: one readable, centered container on every page. */
+main {
+    width: min(var(--content), calc(100% - 2rem));
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 5rem) 0;
+    flex: 1;
+}
+h1, h2 { color: var(--navy); line-height: 1.2; text-wrap: balance; }
+h1 {
+    margin: 0 0 2rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(2rem, 4vw, 3.3rem);
+    letter-spacing: -.035em;
+    font-weight: 700;
+}
+h2 { margin: 0 0 .75rem; font-size: clamp(1.3rem, 2.4vw, 1.8rem); letter-spacing: -.02em; }
+p { margin: 0 0 1.5rem; max-width: 66ch; color: var(--muted); }
 
-            &:hover {
-                color: #0066cc;
-            }
-        }
+/* 5. Existing lists become cards; list markers retain their semantic structure. */
+main > ul {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    margin: 1.75rem 0 0;
+    padding: 0;
+    list-style-position: inside;
+}
+main > ul > li {
+    min-width: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--teal);
+    border-radius: var(--radius);
+    background: var(--white);
+    box-shadow: 0 6px 20px #142e4006;
+}
+main > ul > li::marker { color: var(--teal); font-size: .8em; }
+main > ul > li > strong {
+    display: block;
+    color: var(--navy);
+    font-size: 1.2rem;
+    line-height: 1.4;
+    margin: 1.25rem 0 .35rem;
+}
+/* Logo cards preserve the source aspect ratio and avoid cropping. */
+main > ul > li:has(> img) { list-style-type: none; color: var(--muted); }
+main > ul > li > img {
+    width: 100%;
+    height: 9rem;
+    padding: 1rem;
+    object-fit: contain;
+    background: #f3f7f5;
+    border-radius: .65rem;
+}
+/* The current navigation link provides a page hook without new template wrappers. */
+body:has(nav a[href="/categories"][aria-current]) main > ul > li {
+    background: var(--teal-soft);
+    font-weight: 600;
+    font-size: 1.15rem;
+    padding-block: 2rem;
+}
+body:has(nav a[href="/categories"][aria-current]) main > ul > li:nth-child(even) {
+    background: #f5efe4;
+    border-top-color: var(--gold);
+}
+
+/* 6. Home: an editorial welcome and a quiet panel for the original branding. */
+main:has(> .main-logo) {
+    display: grid;
+    align-content: center;
+    column-gap: 3rem;
+}
+main:has(> .main-logo) > h1 {
+    border: 0;
+    padding: 0;
+    margin-bottom: 1rem;
+    color: var(--teal);
+    font-size: .85rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+}
+main:has(> .main-logo) > h2 {
+    max-width: 18ch;
+    font-size: clamp(2.3rem, 4.5vw, 3.6rem);
+    margin-bottom: 1.5rem;
+}
+main:has(> .main-logo) > p { font-size: 1.1rem; max-width: 48ch; }
+.main-logo {
+    width: 100%;
+    max-width: 29rem;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    margin: 1rem auto 0;
+    background: var(--teal-soft);
+    border: 1px solid #ccded5;
+    border-radius: 1.5rem;
+    box-shadow: 0 14px 35px #142e4008;
+}
+
+/* 7. Shared footer. */
+body > footer {
+    padding: 1.6rem max(1rem, calc((100% - var(--content)) / 2));
+    border-top: 1px solid var(--line);
+    background: #eaf0ed;
+}
+footer p { margin: 0; font-size: .9rem; }
+
+/* 8. Mobile first: expand only when the content has room. */
+@media (min-width: 40rem) {
+    body > nav { padding: 1rem 2rem; }
+    nav ul { gap: .5rem; }
+    nav li { flex: 0 1 auto; }
+    nav a { padding-inline: 1.35rem; }
+    main { width: min(var(--content), calc(100% - 4rem)); }
+    main > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 60rem) {
+    main > ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    body:has(nav a[href="/categories"][aria-current]) main > ul {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    main:has(> .main-logo) { grid-template-columns: 1.2fr 1fr; padding-block: 5rem; }
+    main:has(> .main-logo) > h1,
+    main:has(> .main-logo) > h2,
+    main:has(> .main-logo) > p { grid-column: 1; }
+    .main-logo { grid-column: 2; grid-row: 1 / 4; align-self: center; margin: 0 auto; }
+}
+/* 9. Respect motion preferences; keep navigation usable in high contrast mode. */
+@media (prefers-reduced-motion: reduce) {
+    nav a { transition: none; }
+}
+@media (forced-colors: active) {
+    nav a[aria-current="page"] { border-color: LinkText; }
 }
