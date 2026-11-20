@@ -8,10 +8,41 @@
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="/"<% if (title === 'Home') { %> aria-current="page"<% } %>>Home</a></li>
-            <li><a href="/organizations"<% if (title === 'Our Partner Organizations') { %> aria-current="page"<% } %>>Organizations</a></li>
-            <li><a href="/projects"<% if (title === 'Service Projects') { %> aria-current="page"<% } %>>Projects</a></li>
-            <li><a href="/categories"<% if (title === 'Service Project Categories') { %> aria-current="page"<% } %>>Categories</a></li>
-        </ul>
-    </nav>
+    <ul>
+        <li>
+            <a href="/"
+                <% if (currentPath === '/') { %>
+                    aria-current="page"
+                <% } %>>
+                Home
+            </a>
+        </li>
+
+        <li>
+            <a href="/organizations"
+                <% if (currentPath === '/organizations' || currentPath.startsWith('/organization/')) { %>
+                    aria-current="page"
+                <% } %>>
+                Organizations
+            </a>
+        </li>
+
+        <li>
+            <a href="/projects"
+                <% if (currentPath === '/projects' || currentPath.startsWith('/project/')) { %>
+                    aria-current="page"
+                <% } %>>
+                Projects
+            </a>
+        </li>
+
+        <li>
+            <a href="/categories"
+                <% if (currentPath === '/categories' || currentPath.startsWith('/category/')) { %>
+                    aria-current="page"
+                <% } %>>
+                Categories
+            </a>
+        </li>
+    </ul>
+</nav>

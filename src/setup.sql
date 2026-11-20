@@ -1,3 +1,4 @@
+
 -- ========================================
 -- Organization Table
 -- ========================================
@@ -9,14 +10,30 @@ CREATE TABLE organization (
     logo_filename VARCHAR(255) NOT NULL
 );
 
+
 -- ========================================
--- Insert sample data: Organizations
+-- Insert Sample Organizations
 -- ========================================
 INSERT INTO organization (name, description, contact_email, logo_filename)
 VALUES
-('BrightFuture Builders', 'A nonprofit focused on improving community infrastructure through sustainable construction projects.', 'info@brightfuturebuilders.org', 'brightfuture-logo.png'),
-('GreenHarvest Growers', 'An urban farming collective promoting food sustainability and education in local neighborhoods.', 'contact@greenharvest.org', 'greenharvest-logo.png'),
-('UnityServe Volunteers', 'A volunteer coordination group supporting local charities and service initiatives.', 'hello@unityserve.org', 'unityserve-logo.png');
+(
+    'BrightFuture Builders',
+    'A nonprofit focused on improving community infrastructure through sustainable construction projects.',
+    'info@brightfuturebuilders.org',
+    'brightfuture-logo.png'
+),
+(
+    'GreenHarvest Growers',
+    'An urban farming collective promoting food sustainability and education in local neighborhoods.',
+    'contact@greenharvest.org',
+    'greenharvest-logo.png'
+),
+(
+    'UnityServe Volunteers',
+    'A volunteer coordination group supporting local charities and service initiatives.',
+    'hello@unityserve.org',
+    'unityserve-logo.png'
+);
 
 
 -- ========================================
@@ -26,6 +43,7 @@ CREATE TABLE category (
     category_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
+
 
 -- ========================================
 -- Insert Service Project Categories
@@ -43,40 +61,77 @@ VALUES
 -- ========================================
 CREATE TABLE project (
     project_id SERIAL PRIMARY KEY,
-    name VARCHAR(150) NOT NULL UNIQUE,
+    title VARCHAR(150) NOT NULL UNIQUE,
     description TEXT NOT NULL,
+    date DATE NOT NULL,
+    location VARCHAR(255) NOT NULL,
     organization_id INTEGER NOT NULL,
     FOREIGN KEY (organization_id)
         REFERENCES organization(organization_id)
 );
 
+
 -- ========================================
 -- Insert Sample Service Projects
 -- ========================================
-INSERT INTO project (name, description, organization_id)
+INSERT INTO project (
+    title,
+    description,
+    date,
+    location,
+    organization_id
+)
 SELECT
-    project_data.name,
+    project_data.title,
     project_data.description,
+    CURRENT_DATE + project_data.days_from_today,
+    project_data.location,
     organization.organization_id
 FROM (
     VALUES
         (
             'Community Clean-Up and Tree Planting',
             'Organizing neighborhood clean-ups and planting trees to improve the environment.',
+            8,
+            'BrightFuture Community Park',
             'BrightFuture Builders'
         ),
         (
             'After-School Tutoring Program',
             'Providing educational support and tutoring opportunities for children in local communities.',
+            15,
+            'GreenHarvest Learning Centre',
             'GreenHarvest Growers'
         ),
         (
             'Community Health and Wellness Outreach',
             'Organizing health awareness campaigns and wellness activities for community members.',
+            22,
+            'UnityServe Community Health Centre',
+            'UnityServe Volunteers'
+        ),
+        (
+            'Community Food Garden Expansion',
+            'Expanding community gardens and teaching residents sustainable food-growing practices.',
+            29,
+            'GreenHarvest Community Garden',
+            'GreenHarvest Growers'
+        ),
+        (
+            'Volunteer Skills and Community Learning Day',
+            'Providing practical skills training and educational workshops for community volunteers.',
+            36,
+            'UnityServe Training Centre',
             'UnityServe Volunteers'
         )
-) AS project_data(name, description, organization_name)
-JOIN organization
+) AS project_data(
+    title,
+    description,
+    days_from_today,
+    location,
+    organization_name
+)
+INNER JOIN organization
     ON organization.name = project_data.organization_name;
 
 
@@ -106,16 +161,48 @@ SELECT
     category.category_id
 FROM (
     VALUES
-        ('Community Clean-Up and Tree Planting', 'Environmental'),
-        ('Community Clean-Up and Tree Planting', 'Community Service'),
-
-        ('After-School Tutoring Program', 'Educational'),
-        ('After-School Tutoring Program', 'Community Service'),
-
-        ('Community Health and Wellness Outreach', 'Health and Wellness'),
-        ('Community Health and Wellness Outreach', 'Community Service')
-) AS project_categories(project_name, category_name)
-JOIN project
-    ON project.name = project_categories.project_name
-JOIN category
+        (
+            'Community Clean-Up and Tree Planting',
+            'Environmental'
+        ),
+        (
+            'Community Clean-Up and Tree Planting',
+            'Community Service'
+        ),
+        (
+            'After-School Tutoring Program',
+            'Educational'
+        ),
+        (
+            'After-School Tutoring Program',
+            'Community Service'
+        ),
+        (
+            'Community Health and Wellness Outreach',
+            'Health and Wellness'
+        ),
+        (
+            'Community Health and Wellness Outreach',
+            'Community Service'
+        ),
+        (
+            'Community Food Garden Expansion',
+            'Environmental'
+        ),
+        (
+            'Community Food Garden Expansion',
+            'Community Service'
+        ),
+        (
+            'Volunteer Skills and Community Learning Day',
+            'Educational'
+        ),
+        (
+            'Volunteer Skills and Community Learning Day',
+            'Community Service'
+        )
+) AS project_categories(project_title, category_name)
+INNER JOIN project
+    ON project.title = project_categories.project_title
+INNER JOIN category
     ON category.name = project_categories.category_name;
