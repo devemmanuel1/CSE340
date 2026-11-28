@@ -1,42 +1,69 @@
+
 import router from './src/routes.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import express from 'express';
 import { testConnection } from './src/models/db.js';
+import session from 'express-session';
+import flash from './src/middleware/flash.js';
 
 // Define the application environment
 const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
 
-// Define the port number the server will listen on
+// Define the port number
 const PORT = process.env.PORT || 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
 const app = express();
 
 /**
-  * Configure Express middleware
-  */
+ * Configure Express middleware
+ */
 
-// Serve static files from the public directory
+// Allow Express to process POST data
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Set up session management
+app.use(session({
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60 * 60 * 1000 }
+}));
+
+// Use flash message middleware
+app.use(flash);
+
+// Make flash messages available to EJS templates
+app.use((req, res, next) => {
+    res.locals.messages = req.flash('error');
+    res.locals.success = req.flash('success');
+    next();
+});
+
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Set EJS as the templating engine
 app.set('view engine', 'ejs');
 
-// Tell Express where to find your templates
+// Set views directory
 app.set('views', path.join(__dirname, 'src/views'));
 
-// Middleware to log all incoming requests
+// Middleware to log incoming requests
 app.use((req, res, next) => {
     if (NODE_ENV === 'development') {
         console.log(`${req.method} ${req.url}`);
     }
-    next(); // Pass control to the next middleware or route
+    next();
 });
 
-// Middleware to make NODE_ENV available to all templates
+// Make environment and current path available to templates
 app.use((req, res, next) => {
     res.locals.NODE_ENV = NODE_ENV;
     res.locals.currentPath = req.path;
@@ -57,31 +84,28 @@ app.use((req, res, next) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-    // Log error details for debugging
     console.error('Error occurred:', err.message);
     console.error('Stack trace:', err.stack);
-    
-    // Determine status and template
+
     const status = err.status || 500;
     const template = status === 404 ? '404' : '500';
-    
-    // Prepare data for the template
+
     const context = {
         title: status === 404 ? 'Page Not Found' : 'Server Error',
         error: err.message,
         stack: err.stack
     };
-    
-    // Render the appropriate error template
+
     res.status(status).render(`errors/${template}`, context);
 });
 
+// Start server
 app.listen(PORT, async () => {
-  try {
-    await testConnection();
-    console.log(`Server is running at http://127.0.0.1:${PORT}`);
-    console.log(`Environment: ${NODE_ENV}`);
-  } catch (error) {
-    console.error('Error connecting to the database:', error);
-  }
+    try {
+        await testConnection();
+        console.log(`Server is running at http://127.0.0.1:${PORT}`);
+        console.log(`Environment: ${NODE_ENV}`);
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+    }
 });

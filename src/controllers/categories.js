@@ -1,10 +1,15 @@
 
 import {
     getAllCategories,
-    getCategoryDetails
+    getCategoryDetails,
+    getCategoriesByProjectId,
+    updateCategoryAssignments
 } from '../models/categories.js';
 
-import { getProjectsByCategoryId } from '../models/projects.js';
+import {
+    getProjectsByCategoryId,
+    getProjectDetails
+} from '../models/projects.js';
 
 // Display all categories
 const showCategoriesPage = async (req, res, next) => {
@@ -23,19 +28,15 @@ const showCategoryDetailsPage = async (req, res, next) => {
     try {
         const categoryId = req.params.id;
 
-        // Get category details
         const category = await getCategoryDetails(categoryId);
 
-        // Check if category exists
         if (!category) {
             const error = new Error('Category not found');
             error.status = 404;
             return next(error);
         }
 
-        // Get projects associated with the category
         const projects = await getProjectsByCategoryId(categoryId);
-
         const title = category.name;
 
         res.render('category', {
@@ -49,8 +50,65 @@ const showCategoryDetailsPage = async (req, res, next) => {
     }
 };
 
+// Display assign categories form
+const showAssignCategoriesForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.projectId;
+
+        const projectDetails = await getProjectDetails(projectId);
+
+        if (!projectDetails) {
+            const error = new Error('Project not found');
+            error.status = 404;
+            return next(error);
+        }
+
+        const categories = await getAllCategories();
+
+        const assignedCategories = await getCategoriesByProjectId(projectId);
+
+        const title = 'Assign Categories to Project';
+
+        res.render('assign-categories', {
+            title,
+            projectId,
+            projectDetails,
+            categories,
+            assignedCategories
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Process assign categories form
+const processAssignCategoriesForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.projectId;
+
+        const selectedCategoryIds = req.body.categoryIds || [];
+
+        // Ensure selectedCategoryIds is an array
+        const categoryIdsArray = Array.isArray(selectedCategoryIds)
+            ? selectedCategoryIds
+            : [selectedCategoryIds];
+
+        await updateCategoryAssignments(projectId, categoryIdsArray);
+
+        req.flash('success', 'Categories updated successfully.');
+
+        res.redirect(`/project/${projectId}`);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Export controller functions
 export {
     showCategoriesPage,
-    showCategoryDetailsPage
+    showCategoryDetailsPage,
+    showAssignCategoriesForm,
+    processAssignCategoriesForm
 };
