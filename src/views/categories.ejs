@@ -1,3 +1,4 @@
+
 <%- include('partials/header') %>
 
 <main>
@@ -7,11 +8,20 @@
 
     <p>Explore our service project categories:</p>
 
+    <p>
+        <a href="/new-category">Add New Category</a>
+    </p>
+
     <ul>
         <% categories.forEach(category => { %>
             <li>
                 <a href="/category/<%= category.category_id %>">
                     <%= category.name %>
+                </a>
+
+                |
+                <a href="/edit-category/<%= category.category_id %>">
+                    Edit
                 </a>
             </li>
         <% }); %>

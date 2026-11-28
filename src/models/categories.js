@@ -21,10 +21,32 @@ const getCategoryDetails = async (id) => {
         WHERE category_id = $1;
     `;
 
-    const queryParams = [id];
-    const result = await db.query(query, queryParams);
+    const result = await db.query(query, [id]);
 
     return result.rows.length > 0 ? result.rows[0] : null;
+};
+
+// Create a new category
+const createCategory = async (name) => {
+    const query = `
+        INSERT INTO category (name)
+        VALUES ($1)
+        RETURNING category_id;
+    `;
+
+    const result = await db.query(query, [name]);
+    return result.rows[0].category_id;
+};
+
+// Update an existing category
+const updateCategory = async (id, name) => {
+    const query = `
+        UPDATE category
+        SET name = $1
+        WHERE category_id = $2;
+    `;
+
+    await db.query(query, [name, id]);
 };
 
 // Get all categories associated with a project
@@ -40,9 +62,7 @@ const getCategoriesByProjectId = async (projectId) => {
         ORDER BY category.category_id;
     `;
 
-    const queryParams = [projectId];
-    const result = await db.query(query, queryParams);
-
+    const result = await db.query(query, [projectId]);
     return result.rows;
 };
 
@@ -100,6 +120,8 @@ const updateCategoryAssignments = async (projectId, categoryIds) => {
 export {
     getAllCategories,
     getCategoryDetails,
+    createCategory,
+    updateCategory,
     getCategoriesByProjectId,
     updateCategoryAssignments
 };

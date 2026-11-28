@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,52 +9,61 @@
 </head>
 <body>
     <nav>
-    <ul>
-        <li>
-            <a href="/"
-                <% if (currentPath === '/') { %>
-                    aria-current="page"
-                <% } %>>
-                Home
-            </a>
-        </li>
+        <ul>
+            <li>
+                <a href="/"
+                    <% if (currentPath === '/') { %>
+                        aria-current="page"
+                    <% } %>>
+                    Home
+                </a>
+            </li>
 
-        <li>
-            <a href="/organizations"
-                <% if (currentPath === '/organizations' || currentPath.startsWith('/organization/')) { %>
-                    aria-current="page"
-                <% } %>>
-                Organizations
-            </a>
-        </li>
+            <li>
+                <a href="/organizations"
+                    <% if (currentPath === '/organizations' || currentPath.startsWith('/organization/')) { %>
+                        aria-current="page"
+                    <% } %>>
+                    Organizations
+                </a>
+            </li>
 
-        <li>
-            <a href="/projects"
-                <% if (currentPath === '/projects' || currentPath.startsWith('/project/')) { %>
-                    aria-current="page"
-                <% } %>>
-                Projects
-            </a>
-        </li>
+            <li>
+                <a href="/projects"
+                    <% if (currentPath === '/projects' || currentPath.startsWith('/project/')) { %>
+                        aria-current="page"
+                    <% } %>>
+                    Projects
+                </a>
+            </li>
 
-        <li>
-            <a href="/categories"
-                <% if (currentPath === '/categories' || currentPath.startsWith('/category/')) { %>
-                    aria-current="page"
-                <% } %>>
-                Categories
-            </a>
-        </li>
-    </ul>
-</nav>
+            <li>
+                <a href="/categories"
+                    <% if (currentPath === '/categories' || currentPath.startsWith('/category/')) { %>
+                        aria-current="page"
+                    <% } %>>
+                    Categories
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-<% const messages = flash(); %>
-    <% Object.keys(messages).forEach(type => { %>
-        <% if (messages[type].length > 0) { %>
-            <div class="alert <%= type %>">
-                <% messages[type].forEach(msg => { %>
-                    <p><%= msg %></p>
-                <% }); %>
-            </div>
-        <% } %>
-    <% }); %>
+    <!-- Display error messages -->
+    <% if (messages && messages.length > 0) { %>
+        <div class="alert error">
+            <% messages.forEach(msg => { %>
+                <p><%= msg %></p>
+            <% }); %>
+        </div>
+    <% } %>
+
+    <!-- Display success messages -->
+    <% if (success && success.length > 0) { %>
+        <div class="alert success">
+            <% success.forEach(msg => { %>
+                <p><%= msg %></p>
+            <% }); %>
+        </div>
+    <% } %>
+</body>
+</html>
